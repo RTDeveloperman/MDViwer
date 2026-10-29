@@ -35,6 +35,7 @@ interface EditorState {
   appLanguage: 'fa' | 'en';
   cursorPosition: { line: number; col: number };
   isSettingsOpen: boolean;
+  isHelpOpen: boolean;
   isFileTreeOpen: boolean;
   statusMessage: string | null;
   settings: AppSettings;
@@ -56,6 +57,9 @@ interface EditorState {
   toggleAppLanguage: () => void;
   updateSettings: (newSettings: Partial<AppSettings>) => void;
   toggleSettingsModal: () => void;
+  toggleHelpModal: () => void;
+  openHelpModal: () => void;
+  closeHelpModal: () => void;
   toggleFileTree: () => void;
   setCursorPosition: (line: number, col: number) => void;
   setStatusMessage: (msg: string | null) => void;
@@ -104,6 +108,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   appLanguage: savedLang,
   cursorPosition: { line: 1, col: 1 },
   isSettingsOpen: false,
+  isHelpOpen: false,
   isFileTreeOpen: false,
   statusMessage: null,
   settings: initialSettings,
@@ -371,6 +376,9 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   },
 
   toggleSettingsModal: () => set((s) => ({ isSettingsOpen: !s.isSettingsOpen })),
+  toggleHelpModal: () => set((s) => ({ isHelpOpen: !s.isHelpOpen })),
+  openHelpModal: () => set({ isHelpOpen: true }),
+  closeHelpModal: () => set({ isHelpOpen: false }),
   toggleFileTree: () => set((s) => ({ isFileTreeOpen: !s.isFileTreeOpen })),
   setCursorPosition: (line, col) => set({ cursorPosition: { line, col } }),
   setStatusMessage: (statusMessage) => set({ statusMessage }),

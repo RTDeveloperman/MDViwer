@@ -7,7 +7,8 @@ import { TabBar } from './components/TabBar';
 import { StatusBar } from './components/StatusBar';
 import { FileTree } from './components/FileTree';
 import { SettingsModal } from './components/SettingsModal';
-import { Minus, Square, X, Sparkles } from 'lucide-react';
+import { HelpModal } from './components/HelpModal';
+import { Minus, Square, X, Sparkles, HelpCircle } from 'lucide-react';
 import { detectDirection } from './utils/bidi';
 
 export const App: React.FC = () => {
@@ -22,6 +23,7 @@ export const App: React.FC = () => {
     createNewTab,
     openFileDialog,
     toggleSettingsModal,
+    toggleHelpModal,
     appLanguage,
     theme,
   } = useEditorStore();
@@ -66,16 +68,22 @@ export const App: React.FC = () => {
     });
 
     // Listen for files sent from secondary instances (when app is already running and user double clicks another file)
-    const unsubscribe = window.electronAPI.onOpenFileFromCli((fileData) => {
+    const unsubscribeCli = window.electronAPI.onOpenFileFromCli((fileData) => {
       if (fileData && fileData.content !== undefined) {
         createNewTab(fileData.content, fileData.fileName || 'document.md');
       }
     });
 
+    // Listen for Help menu triggered from native menu
+    const unsubscribeHelp = window.electronAPI.onOpenHelp(() => {
+      toggleHelpModal();
+    });
+
     return () => {
-      unsubscribe();
+      unsubscribeCli();
+      unsubscribeHelp();
     };
-  }, [createNewTab]);
+  }, [createNewTab, toggleHelpModal]);
 
   // Handle snippet insertion from toolbar
   const handleInsertSnippet = useCallback((prefix: string, suffix: string, defaultText: string) => {
@@ -119,7 +127,10 @@ export const App: React.FC = () => {
   // Global Keyboard Shortcuts
   useEffect(() => {
     const handleGlobalKeys = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
+      if (e.key === 'F1') {
+        e.preventDefault();
+        toggleHelpModal();
+      } else if (e.ctrlKey || e.metaKey) {
         if (e.key.toLowerCase() === 'n') {
           e.preventDefault();
           createNewTab();
@@ -129,12 +140,15 @@ export const App: React.FC = () => {
         } else if (e.key === ',') {
           e.preventDefault();
           toggleSettingsModal();
+        } else if (e.key.toLowerCase() === 'h') {
+          e.preventDefault();
+          toggleHelpModal();
         }
       }
     };
     window.addEventListener('keydown', handleGlobalKeys);
     return () => window.removeEventListener('keydown', handleGlobalKeys);
-  }, [createNewTab, openFileDialog, toggleSettingsModal]);
+  }, [createNewTab, openFileDialog, toggleSettingsModal, toggleHelpModal]);
 
   // Drag and Drop File onto Window
   const handleDrop = (e: React.DragEvent) => {
@@ -209,6 +223,19 @@ export const App: React.FC = () => {
           <span className="text-[10px] text-slate-400 hidden sm:inline">
             | {isFa ? 'نمایشگر و ویرایشگر زیبای مارک‌داون' : 'Beautiful Markdown Editor & Viewer'}
           </span>
+
+          {/* Top Help Menu Button */}
+          <button
+            onClick={toggleHelpModal}
+            className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/50 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-400 font-medium text-xs transition-colors border border-blue-200/60 dark:border-blue-800/60 mr-2 ml-2"
+            title={isFa ? 'راهنما و آموزش کامل تگ‌های مارک‌داون (کلید F1)' : 'Markdown Tags & Syntax Guide (F1)'}
+          >
+            <HelpCircle size={13} />
+            <span>{isFa ? 'راهنما (Help)' : 'Help'}</span>
+            <kbd className="hidden md:inline px-1 py-0.2 rounded bg-blue-100 dark:bg-blue-900 text-[10px] text-blue-700 dark:text-blue-300 font-mono">
+              F1
+            </kbd>
+          </button>
         </div>
 
         {/* Window controls if running inside Electron */}
@@ -294,6 +321,9 @@ export const App: React.FC = () => {
 
       {/* Settings Modal */}
       <SettingsModal />
+
+      {/* Complete Markdown Help & Tutorial Modal */}
+      <HelpModal onInsertSnippet={(text) => handleInsertSnippet('', '', text)} />
     </div>
   );
 };

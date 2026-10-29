@@ -22,6 +22,7 @@ export interface ElectronAPI {
   maximizeWindow: () => void;
   closeWindow: () => void;
   isMaximized: () => Promise<boolean>;
+  onOpenHelp: (callback: () => void) => () => void;
 }
 
 const api: ElectronAPI = {
@@ -45,6 +46,13 @@ const api: ElectronAPI = {
   maximizeWindow: () => ipcRenderer.send('window:maximize'),
   closeWindow: () => ipcRenderer.send('window:close'),
   isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+  onOpenHelp: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on('menu:openHelp', handler);
+    return () => {
+      ipcRenderer.removeListener('menu:openHelp', handler);
+    };
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', api);

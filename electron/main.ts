@@ -157,6 +157,50 @@ function createWindow() {
     return { action: 'allow' };
   });
 
+  // Application Menu (File, Edit, View, Help)
+  const menuTemplate: any[] = [
+    {
+      label: 'فایل (File)',
+      submenu: [
+        {
+          label: 'سند جدید (New File)',
+          accelerator: 'CmdOrCtrl+N',
+          click: () => mainWindow?.webContents.send('app:openFileFromCli', { content: '', fileName: 'سند جدید.md', filePath: '' }),
+        },
+        { type: 'separator' },
+        { label: 'خروج (Exit)', role: 'quit' },
+      ],
+    },
+    {
+      label: 'ویرایش (Edit)',
+      role: 'editMenu',
+    },
+    {
+      label: 'نمایش (View)',
+      role: 'viewMenu',
+    },
+    {
+      label: 'راهنما (Help)',
+      submenu: [
+        {
+          label: 'آموزش و راهنمای کامل تگ‌های مارک‌داون (Markdown Guide)',
+          accelerator: 'F1',
+          click: () => {
+            mainWindow?.webContents.send('menu:openHelp');
+          },
+        },
+        { type: 'separator' },
+        {
+          label: 'درباره MDGhashange (About)',
+          click: () => {
+            mainWindow?.webContents.send('menu:openHelp');
+          },
+        },
+      ],
+    },
+  ];
+  Menu.setApplicationMenu(Menu.buildFromTemplate(menuTemplate));
+
   mainWindow.on('closed', () => {
     mainWindow = null;
   });

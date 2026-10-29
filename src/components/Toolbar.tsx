@@ -34,6 +34,7 @@ import {
   FolderTree,
   FileSpreadsheet,
   Check,
+  HelpCircle,
 } from 'lucide-react';
 import { useEditorStore } from '../store/useEditorStore';
 import { markdownSnippets } from '../utils/markdownSnippets';
@@ -64,6 +65,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onInsertSnippet }) => {
     saveActiveTab,
     toggleFileTree,
     toggleSettingsModal,
+    toggleHelpModal,
     setTabDirection,
     setStatusMessage,
   } = useEditorStore();
@@ -515,10 +517,19 @@ export const Toolbar: React.FC<ToolbarProps> = ({ onInsertSnippet }) => {
         {/* Settings Modal Toggle */}
         <button
           onClick={toggleSettingsModal}
-          title={isFa ? 'تنظیمات برنامه' : 'Preferences'}
+          title={isFa ? 'تنظیمات برنامه (Ctrl+,)' : 'Preferences (Ctrl+,)'}
           className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
         >
           <Settings size={16} />
+        </button>
+
+        {/* Help & Markdown Guide Toggle */}
+        <button
+          onClick={toggleHelpModal}
+          title={isFa ? 'راهنما و آموزش کامل تگ‌های مارک‌داون (F1)' : 'Markdown Guide & Tutorial (F1)'}
+          className="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-950/40 text-blue-600 dark:text-blue-400 hover:text-blue-700 transition-colors"
+        >
+          <HelpCircle size={16} />
         </button>
       </div>
     </div>
